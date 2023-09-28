@@ -4,7 +4,9 @@ import schedule
 from ftplib import FTP
 import shutil
 import time
-
+import http.server
+import socketserver
+import _thread as thread
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = os.path.join(FILE_DIRECTORY, 'File Downloads')
@@ -19,7 +21,10 @@ FTP_LOGIN = 'demo'
 FTP_PASSWORD = 'password'
 FTP_DIRECTORY = 'pub/example/'
 
-TIME_OF_DAY_TO_DOWNLOAD = "17:41"
+# Define constants for local area network server
+LAN_PORT = 8000
+
+TIME_OF_DAY_TO_DOWNLOAD = "18:40"
 
 def setup_logging():
     """Configure logging settings to save logs to a file."""
@@ -57,6 +62,24 @@ def main():
         server.quit()
         log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
+
+        thread.start_new_thread(serve_up_on_lan, ())
+
+    except Exception as e:
+        log_error(f"{e}\n")
+
+class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/":
+            self.path = "File Downloads/"
+        return http.server.SimpleHTTPRequestHandler.do_GET(self)
+
+def serve_up_on_lan():
+    try:
+        handler = MyHttpRequestHandler
+        with socketserver.TCPServer(("", LAN_PORT), handler) as httpd:
+            log_success(f"Server started at localhost:{LAN_PORT}")
+            httpd.serve_forever()
     except Exception as e:
         log_error(f"{e}\n")
 
