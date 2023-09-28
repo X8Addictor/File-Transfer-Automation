@@ -45,17 +45,17 @@ def main():
         server.login(user = FTP_LOGIN, passwd = FTP_PASSWORD)
         log_success(f"Logged in successfully as {FTP_LOGIN}")
         server.cwd(FTP_DIRECTORY)
-        log_success(f"Changed directory sucessfully")
+        log_success(f"Changed directory successfully")
         list_of_files = server.nlst()
         log_success(f"Successfully retrieved list of files and directories")
         for file in list_of_files:
             if ".png" in file or ".txt" in file:
                 log_success(f"Found a suitable file for downloading, called '{file}'")
-                with open(DOWNLOAD_DIRECTORY + "/" + file, "wb") as f:
+                with open(f"{DOWNLOAD_DIRECTORY}/{file}", "wb") as f:
                     server.retrbinary(f"RETR {file}", f.write)
                     log_success(f"Successfully downloaded '{file}' to local directory")
         server.quit()
-        log_success(f"Logged out of server sucessfully")
+        log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
     except Exception as e:
         log_error(f"{e}\n")
