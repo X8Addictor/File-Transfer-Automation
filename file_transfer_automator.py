@@ -6,7 +6,9 @@ import shutil
 import time
 import http.server
 import socketserver
+import socket
 import _thread as thread
+
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = os.path.join(FILE_DIRECTORY, 'File Downloads')
@@ -24,7 +26,9 @@ FTP_DIRECTORY = 'pub/example/'
 # Define constants for local area network server
 LAN_PORT = 8000
 
-TIME_OF_DAY_TO_DOWNLOAD = "18:40"
+TIME_OF_DAY_TO_DOWNLOAD = "11:23"
+
+LANServerLaunched = False
 
 def setup_logging():
     """Configure logging settings to save logs to a file."""
@@ -63,12 +67,29 @@ def main():
         log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
 
-        thread.start_new_thread(serve_up_on_lan, ())
+        global LANServerLaunched
+        if LANServerLaunched == False:
+            thread.start_new_thread(serve_up_on_lan, ())
+            LANServerLaunched = True
+        else:
+            log_success(f"LAN Server already running")
 
     except Exception as e:
         log_error(f"{e}\n")
 
-class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
+def getLocalIPAddress():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        s.connect(('192.168.1.1', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
+class LANHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/":
             self.path = "File Downloads/"
@@ -76,9 +97,10 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 def serve_up_on_lan():
     try:
-        handler = MyHttpRequestHandler
-        with socketserver.TCPServer(("", LAN_PORT), handler) as httpd:
-            log_success(f"Server started at localhost:{LAN_PORT}")
+        lan_ip = getLocalIPAddress()
+        handler = LANHttpRequestHandler
+        with socketserver.TCPServer((lan_ip, LAN_PORT), handler) as httpd:
+            log_success(f"Server started at {lan_ip}:{LAN_PORT}")
             httpd.serve_forever()
     except Exception as e:
         log_error(f"{e}\n")
