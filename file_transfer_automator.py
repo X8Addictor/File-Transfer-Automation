@@ -1,7 +1,8 @@
+from ftplib import FTP
+import LANHttpRequestHandler
 import os
 import logging
 import schedule
-from ftplib import FTP
 import shutil
 import time
 import http.server
@@ -89,16 +90,10 @@ def getLocalIPAddress():
         s.close()
     return IP
 
-class LANHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == "/":
-            self.path = "File Downloads/"
-        return http.server.SimpleHTTPRequestHandler.do_GET(self)
-
 def serve_up_on_lan():
     try:
         lan_ip = getLocalIPAddress()
-        handler = LANHttpRequestHandler
+        handler = LANHttpRequestHandler()
         with socketserver.TCPServer((lan_ip, LAN_PORT), handler) as httpd:
             log_success(f"Server started at {lan_ip}:{LAN_PORT}")
             httpd.serve_forever()
