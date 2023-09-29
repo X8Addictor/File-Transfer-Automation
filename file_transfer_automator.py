@@ -1,14 +1,15 @@
-from ftplib import FTP
-import LANHttpRequestHandler
 import os
 import logging
 import schedule
+from ftplib import FTP
 import shutil
 import time
 import http.server
 import socketserver
 import socket
 import _thread as thread
+import webbrowser
+import LANHttpRequestHandler
 
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -25,9 +26,10 @@ FTP_PASSWORD = 'password'
 FTP_DIRECTORY = 'pub/example/'
 
 # Define constants for local area network server
+LAN_IP = ""
 LAN_PORT = 8000
 
-TIME_OF_DAY_TO_DOWNLOAD = "11:23"
+TIME_OF_DAY_TO_DOWNLOAD = "18:53"
 
 LANServerLaunched = False
 
@@ -72,6 +74,7 @@ def main():
         if LANServerLaunched == False:
             thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
+            webbrowser.get('firefox').open(f"{LAN_IP}:{LAN_PORT}", new = 2)
         else:
             log_success(f"LAN Server already running")
 
@@ -79,23 +82,22 @@ def main():
         log_error(f"{e}\n")
 
 def getLocalIPAddress():
+    global LAN_IP
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0)
     try:
         s.connect(('192.168.1.1', 1))
-        IP = s.getsockname()[0]
+        LAN_IP = s.getsockname()[0]
     except Exception:
-        IP = '127.0.0.1'
+        LAN_IP = '127.0.0.1'
     finally:
         s.close()
-    return IP
 
 def serve_up_on_lan():
     try:
-        lan_ip = getLocalIPAddress()
-        handler = LANHttpRequestHandler()
-        with socketserver.TCPServer((lan_ip, LAN_PORT), handler) as httpd:
-            log_success(f"Server started at {lan_ip}:{LAN_PORT}")
+        handler = LANHttpRequestHandler
+        with socketserver.TCPServer((LAN_IP, LAN_PORT), handler) as httpd:
+            log_success(f"Server started at {LAN_IP}:{LAN_PORT}")
             httpd.serve_forever()
     except Exception as e:
         log_error(f"{e}\n")
@@ -114,4 +116,5 @@ def run_scheduled_task():
 
 if __name__ == '__main__':
     setup_logging()
+    getLocalIPAddress()
     run_scheduled_task()
