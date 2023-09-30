@@ -109,7 +109,7 @@ def launch_lan_server():
         if not LANServerLaunched:
             thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
-            webbrowser.get('firefox').open(f"{LAN_IP}:{LAN_PORT}", new = 2)
+            webbrowser.open(f"{LAN_IP}:{LAN_PORT}", new = 2)
         else:
             log_success(f"LAN Server already running")
     except Exception as e:

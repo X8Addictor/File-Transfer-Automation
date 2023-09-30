@@ -166,3 +166,44 @@
 2023-09-30 15:25:14,342 - INFO: Will download these files again tomorrow at 15:25
 2023-09-30 15:25:14,342 - INFO: Server started at 192.168.1.83:8000
 2023-09-30 15:26:10,973 - INFO: Script exiting while waiting for scheduled task...
+2023-09-30 15:37:33,695 - INFO: Will download files at 15:38
+2023-09-30 15:38:00,779 - INFO: Logging into ftp server at test.rebex.net...
+2023-09-30 15:38:02,144 - INFO: Logged in successfully as demo
+2023-09-30 15:38:02,294 - INFO: Changed directory successfully
+2023-09-30 15:38:02,898 - INFO: Successfully retrieved list of files and directories
+2023-09-30 15:38:02,899 - INFO: Found a suitable file for downloading, called 'imap-console-client.png'
+2023-09-30 15:38:03,660 - INFO: Successfully downloaded 'imap-console-client.png' to local directory
+2023-09-30 15:38:03,660 - INFO: Found a suitable file for downloading, called 'KeyGenerator.png'
+2023-09-30 15:38:04,420 - INFO: Successfully downloaded 'KeyGenerator.png' to local directory
+2023-09-30 15:38:04,420 - INFO: Found a suitable file for downloading, called 'KeyGeneratorSmall.png'
+2023-09-30 15:38:05,187 - INFO: Successfully downloaded 'KeyGeneratorSmall.png' to local directory
+2023-09-30 15:38:05,187 - INFO: Found a suitable file for downloading, called 'mail-editor.png'
+2023-09-30 15:38:05,941 - INFO: Successfully downloaded 'mail-editor.png' to local directory
+2023-09-30 15:38:05,942 - INFO: Found a suitable file for downloading, called 'mail-send-winforms.png'
+2023-09-30 15:38:06,704 - INFO: Successfully downloaded 'mail-send-winforms.png' to local directory
+2023-09-30 15:38:06,705 - INFO: Found a suitable file for downloading, called 'mime-explorer.png'
+2023-09-30 15:38:07,612 - INFO: Successfully downloaded 'mime-explorer.png' to local directory
+2023-09-30 15:38:07,612 - INFO: Found a suitable file for downloading, called 'pocketftp.png'
+2023-09-30 15:38:08,519 - INFO: Successfully downloaded 'pocketftp.png' to local directory
+2023-09-30 15:38:08,519 - INFO: Found a suitable file for downloading, called 'pocketftpSmall.png'
+2023-09-30 15:38:09,282 - INFO: Successfully downloaded 'pocketftpSmall.png' to local directory
+2023-09-30 15:38:09,283 - INFO: Found a suitable file for downloading, called 'pop3-browser.png'
+2023-09-30 15:38:10,062 - INFO: Successfully downloaded 'pop3-browser.png' to local directory
+2023-09-30 15:38:10,063 - INFO: Found a suitable file for downloading, called 'pop3-console-client.png'
+2023-09-30 15:38:10,672 - INFO: Successfully downloaded 'pop3-console-client.png' to local directory
+2023-09-30 15:38:10,672 - INFO: Found a suitable file for downloading, called 'readme.txt'
+2023-09-30 15:38:11,282 - INFO: Successfully downloaded 'readme.txt' to local directory
+2023-09-30 15:38:11,283 - INFO: Found a suitable file for downloading, called 'ResumableTransfer.png'
+2023-09-30 15:38:11,891 - INFO: Successfully downloaded 'ResumableTransfer.png' to local directory
+2023-09-30 15:38:11,891 - INFO: Found a suitable file for downloading, called 'winceclient.png'
+2023-09-30 15:38:12,500 - INFO: Successfully downloaded 'winceclient.png' to local directory
+2023-09-30 15:38:12,501 - INFO: Found a suitable file for downloading, called 'winceclientSmall.png'
+2023-09-30 15:38:13,116 - INFO: Successfully downloaded 'winceclientSmall.png' to local directory
+2023-09-30 15:38:13,117 - INFO: Found a suitable file for downloading, called 'WinFormClient.png'
+2023-09-30 15:38:14,038 - INFO: Successfully downloaded 'WinFormClient.png' to local directory
+2023-09-30 15:38:14,039 - INFO: Found a suitable file for downloading, called 'WinFormClientSmall.png'
+2023-09-30 15:38:14,798 - INFO: Successfully downloaded 'WinFormClientSmall.png' to local directory
+2023-09-30 15:38:14,951 - INFO: Logged out of server test.rebex.net successfully
+2023-09-30 15:38:14,952 - INFO: Will download these files again tomorrow at 15:38
+2023-09-30 15:38:14,952 - INFO: Server started at 192.168.1.83:8000
+2023-09-30 15:38:48,701 - INFO: Script exiting while waiting for scheduled task...
