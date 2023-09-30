@@ -85,7 +85,8 @@ def main():
         for file in list_of_files:
             if file.endswith((".png", ".txt")):
                 log_success(f"Found a suitable file for downloading, called '{file}'")
-                with open(os.path.join(DOWNLOAD_DIRECTORY, file), "wb") as local_file:
+                local_file_path = os.path.join(DOWNLOAD_DIRECTORY, file)
+                with open(local_file_path, "wb") as local_file:
                     server.retrbinary(f"RETR {file}", local_file.write)
                     log_success(f"Successfully downloaded '{file}' to local directory")
 
