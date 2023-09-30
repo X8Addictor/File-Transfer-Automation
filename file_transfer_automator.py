@@ -7,9 +7,10 @@ import time
 import http.server
 import socketserver
 import socket
-import threading
+import _thread as thread
 import webbrowser
-import LANHttpRequestHandler
+from LANHttpRequestHandler import LANHttpRequestHandler
+import json
 
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -106,8 +107,7 @@ def launch_lan_server():
     global LANServerLaunched
     try:
         if not LANServerLaunched:
-            getLocalIPAddress()
-            threading.Thread(target = serve_up_on_lan).start()
+            thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
             webbrowser.get('firefox').open(f"{LAN_IP}:{LAN_PORT}", new = 2)
         else:
