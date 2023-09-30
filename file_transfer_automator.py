@@ -60,18 +60,21 @@ def main():
         log_success(f"Changed directory successfully")
         list_of_files = server.nlst()
         log_success(f"Successfully retrieved list of files and directories")
+
         for file in list_of_files:
             if ".png" in file or ".txt" in file:
                 log_success(f"Found a suitable file for downloading, called '{file}'")
-                with open(f"{DOWNLOAD_DIRECTORY}/{file}", "wb") as f:
-                    server.retrbinary(f"RETR {file}", f.write)
+                with open(os.path.join(DOWNLOAD_DIRECTORY, file), "wb") as local_file:
+                    server.retrbinary(f"RETR {file}", local_file.write)
                     log_success(f"Successfully downloaded '{file}' to local directory")
+
         server.quit()
         log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
 
         global LANServerLaunched
-        if LANServerLaunched == False:
+        if not LANServerLaunched:
+            getLocalIPAddress()
             thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
             webbrowser.get('firefox').open(f"{LAN_IP}:{LAN_PORT}", new = 2)
