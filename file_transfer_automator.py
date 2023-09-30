@@ -16,18 +16,19 @@ FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = os.path.join(FILE_DIRECTORY, 'File Downloads')
 LOG_DIRECTORY = os.path.join(FILE_DIRECTORY, 'Logs')
 LOG_FILE = os.path.join(LOG_DIRECTORY, 'Logs.log')
+CONFIG_FILE = os.path.join(FILE_DIRECTORY, 'config.json')
 os.makedirs(LOG_DIRECTORY, exist_ok=True)
 os.makedirs(DOWNLOAD_DIRECTORY, exist_ok=True)
 
 # Define constants for ftp server
-FTP_HOSTNAME = 'test.rebex.net'
-FTP_LOGIN = 'demo'
-FTP_PASSWORD = 'password'
-FTP_DIRECTORY = 'pub/example/'
+FTP_HOSTNAME = None
+FTP_LOGIN = None
+FTP_PASSWORD = None
+FTP_DIRECTORY = None
 
 # Define constants for local area network server
-LAN_IP = ""
-LAN_PORT = 8000
+LAN_IP = None
+LAN_PORT = None
 
 TIME_OF_DAY_TO_DOWNLOAD = "18:53"
 
@@ -40,6 +41,26 @@ def setup_logging():
             log_file.write('')
 
     logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
+
+def setup_FTP():
+    global FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT
+
+    try:
+        with open(CONFIG_FILE, "r") as config_file:
+            config = json.load(config_file)
+
+        FTP_HOSTNAME = config.get('FTP_HOSTNAME')
+        FTP_LOGIN = config.get('FTP_LOGIN')
+        FTP_PASSWORD = config.get('FTP_PASSWORD')
+        FTP_DIRECTORY = config.get('FTP_DIRECTORY')
+        LAN_PORT = config.get('LAN_PORT')
+
+        if None in (FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT):
+            raise ValueError("One or more required values are missing in the config file")
+
+    except ValueError as e:
+        log_error(f"An error occurred while reading the config file: {e}")
+        FTP_HOSTNAME = FTP_LOGIN = FTP_PASSWORD = FTP_DIRECTORY = LAN_PORT = None
 
 def log_error(message):
     print(f"Error(s) occurred, please check '{LOG_FILE}' for more details")
@@ -62,7 +83,7 @@ def main():
         log_success(f"Successfully retrieved list of files and directories")
 
         for file in list_of_files:
-            if ".png" in file or ".txt" in file:
+            if file.endswith((".png", ".txt")):
                 log_success(f"Found a suitable file for downloading, called '{file}'")
                 with open(os.path.join(DOWNLOAD_DIRECTORY, file), "wb") as local_file:
                     server.retrbinary(f"RETR {file}", local_file.write)
@@ -119,5 +140,6 @@ def run_scheduled_task():
 
 if __name__ == '__main__':
     setup_logging()
+    setup_FTP()
     getLocalIPAddress()
     run_scheduled_task()

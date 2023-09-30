@@ -1,0 +1,7 @@
+{
+    "FTP_HOSTNAME": "test.rebex.net",
+    "FTP_LOGIN": "demo",
+    "FTP_PASSWORD": "password",
+    "FTP_DIRECTORY": "pub/example/",
+    "LAN_PORT": 8000
+}
