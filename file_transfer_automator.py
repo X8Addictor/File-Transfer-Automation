@@ -7,7 +7,7 @@ import time
 import http.server
 import socketserver
 import socket
-import _thread as thread
+import threading
 import webbrowser
 import LANHttpRequestHandler
 
@@ -30,8 +30,7 @@ FTP_DIRECTORY = None
 LAN_IP = None
 LAN_PORT = None
 
-TIME_OF_DAY_TO_DOWNLOAD = "18:53"
-
+TIME_OF_DAY_TO_DOWNLOAD = None
 LANServerLaunched = False
 
 def setup_logging():
@@ -42,8 +41,8 @@ def setup_logging():
 
     logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
 
-def setup_FTP():
-    global FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT
+def load_configuration():
+    global FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT, TIME_OF_DAY_TO_DOWNLOAD
 
     try:
         with open(CONFIG_FILE, "r") as config_file:
@@ -54,13 +53,14 @@ def setup_FTP():
         FTP_PASSWORD = config.get('FTP_PASSWORD')
         FTP_DIRECTORY = config.get('FTP_DIRECTORY')
         LAN_PORT = config.get('LAN_PORT')
+        TIME_OF_DAY_TO_DOWNLOAD = config.get('TIME_OF_DAY_TO_DOWNLOAD')
 
-        if None in (FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT):
+        if None in (FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT, TIME_OF_DAY_TO_DOWNLOAD):
             raise ValueError("One or more required values are missing in the config file")
 
     except ValueError as e:
         log_error(f"An error occurred while reading the config file: {e}")
-        FTP_HOSTNAME = FTP_LOGIN = FTP_PASSWORD = FTP_DIRECTORY = LAN_PORT = None
+        FTP_HOSTNAME = FTP_LOGIN = FTP_PASSWORD = FTP_DIRECTORY = LAN_PORT = TIME_OF_DAY_TO_DOWNLOAD = None
 
 def log_error(message):
     print(f"Error(s) occurred, please check '{LOG_FILE}' for more details")
@@ -93,19 +93,28 @@ def main():
         log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
 
-        global LANServerLaunched
+        launch_lan_server()
+    except error_perm as e_perm:
+        log_error(f"FTP Permission Error: {e_perm}")
+    except error_reply as e_reply:
+        log_error(f"FTP Reply Error: {e_reply}")
+    except Exception as e:
+        log_error(f"An unexpected error occurred: {e}\n")
+
+def launch_lan_server():
+    global LANServerLaunched
+    try:
         if not LANServerLaunched:
             getLocalIPAddress()
-            thread.start_new_thread(serve_up_on_lan, ())
+            threading.Thread(target = serve_up_on_lan).start()
             LANServerLaunched = True
             webbrowser.get('firefox').open(f"{LAN_IP}:{LAN_PORT}", new = 2)
         else:
             log_success(f"LAN Server already running")
-
     except Exception as e:
-        log_error(f"{e}\n")
+        log_error(f"Error launching LAN Server: {e}\n")
 
-def getLocalIPAddress():
+def get_local_ip_address():
     global LAN_IP
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0)
@@ -124,7 +133,7 @@ def serve_up_on_lan():
             log_success(f"Server started at {LAN_IP}:{LAN_PORT}")
             httpd.serve_forever()
     except Exception as e:
-        log_error(f"{e}\n")
+        log_error(f"Error serving on LAN: {e}\n")
 
 def run_scheduled_task():
     schedule.every().day.at(TIME_OF_DAY_TO_DOWNLOAD).do(main)
@@ -140,6 +149,6 @@ def run_scheduled_task():
 
 if __name__ == '__main__':
     setup_logging()
-    setup_FTP()
-    getLocalIPAddress()
+    load_configuration()
+    get_local_ip_address()
     run_scheduled_task()

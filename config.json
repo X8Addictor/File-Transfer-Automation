@@ -3,5 +3,6 @@
     "FTP_LOGIN": "demo",
     "FTP_PASSWORD": "password",
     "FTP_DIRECTORY": "pub/example/",
-    "LAN_PORT": 8000
+    "LAN_PORT": 8000,
+    "TIME_OF_DAY_TO_DOWNLOAD": "18:53"
 }
