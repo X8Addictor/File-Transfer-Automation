@@ -416,3 +416,59 @@
 2023-09-30 16:07:14,628 - INFO: Will download these files again tomorrow at 16:07
 2023-09-30 16:07:14,629 - INFO: Server started at 192.168.1.83:8000
 2023-09-30 16:10:57,413 - INFO: Script exiting while waiting for scheduled task...
+2023-10-02 12:26:41,622 - INFO: Will download files at 12:27
+2023-10-02 12:27:00,628 - INFO: Logging into SFTP server at test.rebex.net...
+2023-10-02 12:27:01,074 - INFO: Connected (version 2.0, client RebexSSH_5.0.8606.0)
+2023-10-02 12:27:01,345 - INFO: Authentication (password) successful!
+2023-10-02 12:28:45,876 - INFO: Will download files at 12:29
+2023-10-02 12:29:00,882 - INFO: Logging into SFTP server at test.rebex.net...
+2023-10-02 12:29:01,100 - INFO: Connected (version 2.0, client RebexSSH_5.0.8606.0)
+2023-10-02 12:29:01,367 - INFO: Authentication (password) successful!
+2023-10-02 12:29:01,367 - ERROR: An unexpected error occurred: name 'server' is not defined
+
+2023-10-02 12:31:20,247 - INFO: Script exiting while waiting for scheduled task...
+2023-10-02 12:32:53,311 - INFO: Will download files at 12:33
+2023-10-02 12:33:00,312 - INFO: Logging into SFTP server at test.rebex.net...
+2023-10-02 12:33:00,664 - INFO: Connected (version 2.0, client RebexSSH_5.0.8606.0)
+2023-10-02 12:33:00,931 - INFO: Authentication (password) successful!
+2023-10-02 12:33:01,037 - INFO: [chan 0] Opened sftp connection (server version 3)
+2023-10-02 12:33:01,037 - INFO: Logged in successfully as demo
+2023-10-02 12:33:01,106 - INFO: Changed directory successfully
+2023-10-02 12:33:01,244 - INFO: Successfully retrieved list of files and directories
+2023-10-02 12:33:01,244 - INFO: Found a suitable file for downloading, called 'imap-console-client.png'
+2023-10-02 12:33:01,468 - INFO: Successfully downloaded 'imap-console-client.png' to local directory
+2023-10-02 12:33:01,468 - INFO: Found a suitable file for downloading, called 'KeyGenerator.png'
+2023-10-02 12:33:01,715 - INFO: Successfully downloaded 'KeyGenerator.png' to local directory
+2023-10-02 12:33:01,715 - INFO: Found a suitable file for downloading, called 'KeyGeneratorSmall.png'
+2023-10-02 12:33:01,946 - INFO: Successfully downloaded 'KeyGeneratorSmall.png' to local directory
+2023-10-02 12:33:01,946 - INFO: Found a suitable file for downloading, called 'mail-editor.png'
+2023-10-02 12:33:02,158 - INFO: Successfully downloaded 'mail-editor.png' to local directory
+2023-10-02 12:33:02,158 - INFO: Found a suitable file for downloading, called 'mail-send-winforms.png'
+2023-10-02 12:33:02,403 - INFO: Successfully downloaded 'mail-send-winforms.png' to local directory
+2023-10-02 12:33:02,404 - INFO: Found a suitable file for downloading, called 'mime-explorer.png'
+2023-10-02 12:33:02,649 - INFO: Successfully downloaded 'mime-explorer.png' to local directory
+2023-10-02 12:33:02,649 - INFO: Found a suitable file for downloading, called 'pocketftp.png'
+2023-10-02 12:33:02,949 - INFO: Successfully downloaded 'pocketftp.png' to local directory
+2023-10-02 12:33:02,949 - INFO: Found a suitable file for downloading, called 'pocketftpSmall.png'
+2023-10-02 12:33:03,164 - INFO: Successfully downloaded 'pocketftpSmall.png' to local directory
+2023-10-02 12:33:03,164 - INFO: Found a suitable file for downloading, called 'pop3-browser.png'
+2023-10-02 12:33:03,376 - INFO: Successfully downloaded 'pop3-browser.png' to local directory
+2023-10-02 12:33:03,376 - INFO: Found a suitable file for downloading, called 'pop3-console-client.png'
+2023-10-02 12:33:03,589 - INFO: Successfully downloaded 'pop3-console-client.png' to local directory
+2023-10-02 12:33:03,589 - INFO: Found a suitable file for downloading, called 'readme.txt'
+2023-10-02 12:33:03,795 - INFO: Successfully downloaded 'readme.txt' to local directory
+2023-10-02 12:33:03,795 - INFO: Found a suitable file for downloading, called 'ResumableTransfer.png'
+2023-10-02 12:33:04,008 - INFO: Successfully downloaded 'ResumableTransfer.png' to local directory
+2023-10-02 12:33:04,008 - INFO: Found a suitable file for downloading, called 'winceclient.png'
+2023-10-02 12:33:04,215 - INFO: Successfully downloaded 'winceclient.png' to local directory
+2023-10-02 12:33:04,215 - INFO: Found a suitable file for downloading, called 'winceclientSmall.png'
+2023-10-02 12:33:04,422 - INFO: Successfully downloaded 'winceclientSmall.png' to local directory
+2023-10-02 12:33:04,423 - INFO: Found a suitable file for downloading, called 'WinFormClient.png'
+2023-10-02 12:33:04,674 - INFO: Successfully downloaded 'WinFormClient.png' to local directory
+2023-10-02 12:33:04,674 - INFO: Found a suitable file for downloading, called 'WinFormClientSmall.png'
+2023-10-02 12:33:04,883 - INFO: Successfully downloaded 'WinFormClientSmall.png' to local directory
+2023-10-02 12:33:04,883 - INFO: [chan 0] sftp session closed.
+2023-10-02 12:33:04,884 - INFO: Logged out of server test.rebex.net successfully
+2023-10-02 12:33:04,884 - INFO: Will download these files again tomorrow at 12:33
+2023-10-02 12:33:04,885 - INFO: Server started at 192.168.0.120:8000
+2023-10-02 12:33:21,659 - INFO: Script exiting while waiting for scheduled task...

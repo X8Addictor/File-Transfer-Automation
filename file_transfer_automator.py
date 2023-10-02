@@ -11,6 +11,7 @@ import _thread as thread
 import webbrowser
 from LANHttpRequestHandler import LANHttpRequestHandler
 import json
+import paramiko
 
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -73,33 +74,35 @@ def log_success(message):
 
 def main():
     try:
-        log_success(f"Logging into ftp server at {FTP_HOSTNAME}...")
-        server = FTP(FTP_HOSTNAME)
-        server.encoding = "utf-8"
-        server.login(user = FTP_LOGIN, passwd = FTP_PASSWORD)
+        log_success(f"Logging into SFTP server at {FTP_HOSTNAME}...")
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(FTP_HOSTNAME, port = 22, username = FTP_LOGIN, password = FTP_PASSWORD)
+
+        sftp = ssh.open_sftp()
         log_success(f"Logged in successfully as {FTP_LOGIN}")
-        server.cwd(FTP_DIRECTORY)
+        sftp.chdir(FTP_DIRECTORY)
         log_success(f"Changed directory successfully")
-        list_of_files = server.nlst()
+        list_of_files = sftp.listdir()
         log_success(f"Successfully retrieved list of files and directories")
 
         for file in list_of_files:
             if file.endswith((".png", ".txt")):
                 log_success(f"Found a suitable file for downloading, called '{file}'")
                 local_file_path = os.path.join(DOWNLOAD_DIRECTORY, file)
-                with open(local_file_path, "wb") as local_file:
-                    server.retrbinary(f"RETR {file}", local_file.write)
-                    log_success(f"Successfully downloaded '{file}' to local directory")
+                sftp.get(file, local_file_path)
+                log_success(f"Successfully downloaded '{file}' to local directory")
 
-        server.quit()
+        sftp.close()
+        ssh.close()
         log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
 
         launch_lan_server()
-    except error_perm as e_perm:
-        log_error(f"FTP Permission Error: {e_perm}")
-    except error_reply as e_reply:
-        log_error(f"FTP Reply Error: {e_reply}")
+    except paramiko.AuthenticationException as e_auth:
+        log_error(f"SFTP Authentication Error: {e_auth}")
+    except paramiko.SSHException as e_ssh:
+        log_error(f"SFTP SSH Error: {e_ssh}")
     except Exception as e:
         log_error(f"An unexpected error occurred: {e}\n")
 
@@ -109,7 +112,7 @@ def launch_lan_server():
         if not LANServerLaunched:
             thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
-            #webbrowser.get().open(f"{LAN_IP}:{LAN_PORT}")
+            webbrowser.open(f"http://{LAN_IP}:{LAN_PORT}")  
         else:
             log_success(f"LAN Server already running")
     except Exception as e:
