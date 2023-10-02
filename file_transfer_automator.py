@@ -12,15 +12,28 @@ import webbrowser
 from LANHttpRequestHandler import LANHttpRequestHandler
 import json
 import paramiko
+import ssl
+import datetime
+
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
+from cryptography.hazmat.primitives.serialization import PublicFormat
 
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = os.path.join(FILE_DIRECTORY, 'File Downloads')
 LOG_DIRECTORY = os.path.join(FILE_DIRECTORY, 'Logs')
+SSL_CERTIFICATE_DIRECTORY = os.path.join(FILE_DIRECTORY, 'ssl certificate')
+SSL_CERTIFICATE_FILE = os.path.join(SSL_CERTIFICATE_DIRECTORY, 'ssl_certificate.crt')
+SSL_PRIVATE_KEY_FILE = os.path.join(SSL_CERTIFICATE_DIRECTORY, 'ssl_key.key')
 LOG_FILE = os.path.join(LOG_DIRECTORY, 'Logs.log')
 CONFIG_FILE = os.path.join(FILE_DIRECTORY, 'config.json')
-os.makedirs(LOG_DIRECTORY, exist_ok=True)
-os.makedirs(DOWNLOAD_DIRECTORY, exist_ok=True)
+os.makedirs(LOG_DIRECTORY, exist_ok = True)
+os.makedirs(DOWNLOAD_DIRECTORY, exist_ok = True)
+os.makedirs(SSL_CERTIFICATE_DIRECTORY, exist_ok = True)
 
 # Define constants for ftp server
 FTP_HOSTNAME = None
@@ -63,6 +76,56 @@ def load_configuration():
     except ValueError as e:
         log_error(f"An error occurred while reading the config file: {e}")
         FTP_HOSTNAME = FTP_LOGIN = FTP_PASSWORD = FTP_DIRECTORY = LAN_PORT = TIME_OF_DAY_TO_DOWNLOAD = None
+
+def generate_self_signed_certificate_and_key(days_valid = 365):
+    # Get the current hostname dynamically
+    common_name = socket.gethostname()
+
+    # Generate a new private key
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+
+    # Create a self-signed certificate
+    subject = issuer = x509.Name([
+        x509.NameAttribute(NameOID.COMMON_NAME, common_name),
+    ])
+    certificate = x509.CertificateBuilder().subject_name(
+        subject
+    ).issuer_name(
+        issuer
+    ).public_key(
+        private_key.public_key()
+    ).serial_number(
+        x509.random_serial_number()
+    ).not_valid_before(
+        datetime.datetime.utcnow()
+    ).not_valid_after(
+        datetime.datetime.utcnow() + datetime.timedelta(days=days_valid)
+    ).add_extension(
+        x509.BasicConstraints(ca=True, path_length=None), critical=True
+    ).sign(
+        private_key, hashes.SHA256()
+    )
+
+    # Save the private key to a file (PEM format)
+    with open(SSL_PRIVATE_KEY_FILE, "wb") as key_file:
+        key_file.write(
+            private_key.private_bytes(
+                encoding=Encoding.PEM,
+                format=PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=NoEncryption(),
+            )
+        )
+
+    # Save the certificate to a file (PEM format)
+    with open(SSL_CERTIFICATE_FILE, "wb") as cert_file:
+        cert_file.write(
+            certificate.public_bytes(
+                encoding=Encoding.PEM,
+            )
+        )
 
 def log_error(message):
     print(f"Error(s) occurred, please check '{LOG_FILE}' for more details")
@@ -112,7 +175,7 @@ def launch_lan_server():
         if not LANServerLaunched:
             thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
-            webbrowser.open(f"http://{LAN_IP}:{LAN_PORT}")  
+            webbrowser.open(f"https://{LAN_IP}:{LAN_PORT}")  
         else:
             log_success(f"LAN Server already running")
     except Exception as e:
@@ -133,7 +196,20 @@ def get_local_ip_address():
 def serve_up_on_lan():
     try:
         handler = LANHttpRequestHandler
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+
+        if not os.path.exists(SSL_CERTIFICATE_FILE):
+            log_error(f"SSL certificate file does not exist: {SSL_CERTIFICATE_FILE}")
+            return None
+
+        if not os.path.exists(SSL_PRIVATE_KEY_FILE):
+            log_error(f"SSL private key file does not exist: {SSL_PRIVATE_KEY_FILE}")
+            return None
+
+        ssl_context.load_cert_chain(certfile = SSL_CERTIFICATE_FILE, keyfile = SSL_PRIVATE_KEY_FILE) # Replace the certificate and private key with a real one
+        
         with socketserver.TCPServer((LAN_IP, LAN_PORT), handler) as httpd:
+            http.socket = ssl_context.wrap_socket(httpd.socket, server_side = True)
             log_success(f"Server started at {LAN_IP}:{LAN_PORT}")
             httpd.serve_forever()
     except Exception as e:
@@ -154,5 +230,6 @@ def run_scheduled_task():
 if __name__ == '__main__':
     setup_logging()
     load_configuration()
+    generate_self_signed_certificate_and_key()
     get_local_ip_address()
     run_scheduled_task()
