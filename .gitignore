@@ -1,6 +1,6 @@
 File*Downloads/
 ssl*certificate/
-Logs/
+Logs/Logs.log
 tempCodeRunnerFile.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
