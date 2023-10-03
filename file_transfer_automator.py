@@ -1,26 +1,21 @@
 import os
 import logging
 import schedule
-from ftplib import FTP
-import shutil
 import time
-import http.server
 import socketserver
 import socket
 import _thread as thread
 import webbrowser
-from LANHttpRequestHandler import LANHttpRequestHandler
 import json
 import paramiko
 import ssl
 import datetime
-
+from LANHttpRequestHandler import LANHttpRequestHandler
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
-from cryptography.hazmat.primitives.serialization import PublicFormat
 
 # Define constants for file paths and directories.
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -78,24 +73,13 @@ def load_configuration():
         FTP_HOSTNAME = FTP_LOGIN = FTP_PASSWORD = FTP_DIRECTORY = LAN_PORT = TIME_OF_DAY_TO_DOWNLOAD = None
 
 def generate_self_signed_certificate_and_key(days_valid = 365):
-    # Get the current hostname dynamically
     common_name = socket.gethostname()
 
-    # Generate a new private key
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-    )
+    private_key = rsa.generate_private_key(public_exponent = 65537, key_size = 2048)
 
-    # Create a self-signed certificate
-    subject = issuer = x509.Name([
-        x509.NameAttribute(NameOID.COMMON_NAME, common_name),
-    ])
-    certificate = x509.CertificateBuilder().subject_name(
-        subject
-    ).issuer_name(
-        issuer
-    ).public_key(
+    # Creating a self-signed certificate
+    subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+    certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).public_key(
         private_key.public_key()
     ).serial_number(
         x509.random_serial_number()
@@ -109,7 +93,6 @@ def generate_self_signed_certificate_and_key(days_valid = 365):
         private_key, hashes.SHA256()
     )
 
-    # Save the private key to a file (PEM format)
     with open(SSL_PRIVATE_KEY_FILE, "wb") as key_file:
         key_file.write(
             private_key.private_bytes(
@@ -119,7 +102,6 @@ def generate_self_signed_certificate_and_key(days_valid = 365):
             )
         )
 
-    # Save the certificate to a file (PEM format)
     with open(SSL_CERTIFICATE_FILE, "wb") as cert_file:
         cert_file.write(
             certificate.public_bytes(
