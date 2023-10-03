@@ -175,7 +175,7 @@ def launch_lan_server():
         if not LANServerLaunched:
             thread.start_new_thread(serve_up_on_lan, ())
             LANServerLaunched = True
-            webbrowser.open(f"https://{LAN_IP}:{LAN_PORT}")  
+            webbrowser.open(f"https://{LAN_IP}:{LAN_PORT}")
         else:
             log_success(f"LAN Server already running")
     except Exception as e:
@@ -207,9 +207,9 @@ def serve_up_on_lan():
             return None
 
         ssl_context.load_cert_chain(certfile = SSL_CERTIFICATE_FILE, keyfile = SSL_PRIVATE_KEY_FILE) # Replace the certificate and private key with a real one
-        
+
         with socketserver.TCPServer((LAN_IP, LAN_PORT), handler) as httpd:
-            http.socket = ssl_context.wrap_socket(httpd.socket, server_side = True)
+            httpd.socket = ssl_context.wrap_socket(httpd.socket, server_side = True)
             log_success(f"Server started at {LAN_IP}:{LAN_PORT}")
             httpd.serve_forever()
     except Exception as e:
