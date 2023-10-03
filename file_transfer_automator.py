@@ -147,14 +147,14 @@ def main():
         sftp.chdir(FTP_DIRECTORY)
         log_success(f"Changed directory successfully")
         list_of_files = sftp.listdir()
-        log_success(f"Successfully retrieved list of files and directories")
-
+        log_success(f"Successfully retrieved list of files")
+        log_success(f"Beginning download of files...")
+        
         for file in list_of_files:
-            if file.endswith((".png", ".txt")):
-                log_success(f"Found a suitable file for downloading, called '{file}'")
-                local_file_path = os.path.join(DOWNLOAD_DIRECTORY, file)
-                sftp.get(file, local_file_path)
-                log_success(f"Successfully downloaded '{file}' to local directory")
+            local_file_path = os.path.join(DOWNLOAD_DIRECTORY, file)
+            sftp.get(file, local_file_path)
+            log_success(f"Successfully downloaded '{file}' to local directory")
+        log_success(f"Successfully downloaded all files.")
 
         sftp.close()
         ssh.close()
