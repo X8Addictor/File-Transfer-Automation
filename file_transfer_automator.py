@@ -9,6 +9,7 @@ import webbrowser
 import json
 import paramiko
 import ssl
+import shutil
 import datetime
 from LANHttpRequestHandler import LANHttpRequestHandler
 from cryptography import x509
@@ -21,6 +22,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat
 FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIRECTORY = os.path.join(FILE_DIRECTORY, 'File Downloads')
 LOG_DIRECTORY = os.path.join(FILE_DIRECTORY, 'Logs')
+SERVER_DIRECTORY = os.path.join(FILE_DIRECTORY, 'Server Directory')
 SSL_CERTIFICATE_DIRECTORY = os.path.join(FILE_DIRECTORY, 'ssl certificate')
 SSL_CERTIFICATE_FILE = os.path.join(SSL_CERTIFICATE_DIRECTORY, 'ssl_certificate.crt')
 SSL_PRIVATE_KEY_FILE = os.path.join(SSL_CERTIFICATE_DIRECTORY, 'ssl_key.key')
@@ -28,6 +30,7 @@ LOG_FILE = os.path.join(LOG_DIRECTORY, 'Logs.log')
 CONFIG_FILE = os.path.join(FILE_DIRECTORY, 'config.json')
 os.makedirs(LOG_DIRECTORY, exist_ok = True)
 os.makedirs(DOWNLOAD_DIRECTORY, exist_ok = True)
+os.makedirs(SERVER_DIRECTORY, exist_ok = True)
 os.makedirs(SSL_CERTIFICATE_DIRECTORY, exist_ok = True)
 
 # Define constants for ftp server
@@ -145,7 +148,7 @@ def main():
         list_of_files = sftp.listdir()
         log_success(f"Successfully retrieved list of files")
         log_success(f"Beginning download of files...")
-        
+
         for file in list_of_files:
             local_file_path = os.path.join(DOWNLOAD_DIRECTORY, file)
             sftp.get(file, local_file_path)
@@ -157,6 +160,8 @@ def main():
         log_success(f"Logged out of server {FTP_HOSTNAME} successfully")
         log_success(f"Will download these files again tomorrow at {TIME_OF_DAY_TO_DOWNLOAD}")
 
+        copy_files_to_server_directory()
+
         launch_lan_server()
     except paramiko.AuthenticationException as e_auth:
         log_error(f"SFTP Authentication Error: {e_auth}")
@@ -166,6 +171,17 @@ def main():
         log_error(f"Value Error: {e_value}")
     except Exception as e:
         log_error(f"An unexpected error occurred: {e}\n")
+
+def copy_files_to_server_directory():
+    log_success(f"Copying files to local server...")
+    try:
+        files = os.listdir(DOWNLOAD_DIRECTORY)
+        for file in files:
+            shutil.copy(os.path.join(DOWNLOAD_DIRECTORY, file), SERVER_DIRECTORY)
+            log_success(f"Copied file '{file}' to local server directory")
+    except Exception as e:
+        log_error(f"An unexpected error occurred: {e}\n")
+
 
 def launch_lan_server():
     global LANServerLaunched
@@ -205,7 +221,7 @@ def serve_up_on_lan():
             return None
 
         # Add the generated certificate to the browser in the lan network or ignore warnings in the browser
-        ssl_context.load_cert_chain(certfile = SSL_CERTIFICATE_FILE, keyfile = SSL_PRIVATE_KEY_FILE) 
+        ssl_context.load_cert_chain(certfile = SSL_CERTIFICATE_FILE, keyfile = SSL_PRIVATE_KEY_FILE)
         with socketserver.TCPServer((LAN_IP, LAN_PORT), handler) as httpd:
             httpd.socket = ssl_context.wrap_socket(httpd.socket, server_side = True)
             log_success(f"Server started at {LAN_IP}:{LAN_PORT}")
