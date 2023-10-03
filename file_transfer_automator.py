@@ -47,6 +47,10 @@ LANServerLaunched = False
 MAX_RETRIES = 3
 RETRY_INTERVAL_SECONDS = 5
 
+# Cleanup settings
+MAX_LOG_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+MAX_DOWNLOAD_FILES = 100
+
 def setup_logging():
     """Configure logging settings to save logs to a file."""
     if not os.path.exists(LOG_FILE):
@@ -119,6 +123,25 @@ def generate_self_signed_certificate_and_key(days_valid = 365):
     except Exception as e:
         log_error(f"Error generating self-signed certificate and key: {e}\n")
 
+def cleanup_large_log_file():
+    try:
+        if os.path.getsize(LOG_FILE) > MAX_LOG_FILE_SIZE_BYTES:
+            with open(LOG_FILE, 'w') as log_file:
+                log_file.write('')
+            log_success(f"Cleared large log file: {LOG_FILE}")
+    except Exception as e:
+        log_error(f"Error cleaning up large log file: {e}")
+
+def cleanup_old_download_files():
+    try:
+        download_files = sorted(os.listdir(DOWNLOAD_DIRECTORY))
+        if len(download_files) > MAX_DOWNLOAD_FILES:
+            for file_to_remove in download_files[:-MAX_DOWNLOAD_FILES]:
+                file_path = os.path.join(DOWNLOAD_DIRECTORY, file_to_remove)
+                os.remove(file_path)
+                log_success(f"Removed old download file: {file_to_remove}")
+    except Exception as e:
+        log_error(f"Error cleaning up old download files: {e}")
 
 def log_error(message):
     print(f"Error(s) occurred, please check '{LOG_FILE}' for more details")
@@ -248,3 +271,5 @@ if __name__ == '__main__':
     generate_self_signed_certificate_and_key()
     get_local_ip_address()
     run_scheduled_task()
+    cleanup_large_log_file()
+    cleanup_old_download_files()
