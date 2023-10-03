@@ -182,7 +182,6 @@ def copy_files_to_server_directory():
     except Exception as e:
         log_error(f"An unexpected error occurred: {e}\n")
 
-
 def launch_lan_server():
     global LANServerLaunched
     try:
