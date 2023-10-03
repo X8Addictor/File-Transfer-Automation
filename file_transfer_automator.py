@@ -73,41 +73,48 @@ def load_configuration():
         FTP_HOSTNAME = FTP_LOGIN = FTP_PASSWORD = FTP_DIRECTORY = LAN_PORT = TIME_OF_DAY_TO_DOWNLOAD = None
 
 def generate_self_signed_certificate_and_key(days_valid = 365):
-    common_name = socket.gethostname()
+    try:
+        common_name = socket.gethostname()
 
-    private_key = rsa.generate_private_key(public_exponent = 65537, key_size = 2048)
+        # Generate a new private key
+        private_key = rsa.generate_private_key(public_exponent = 65537, key_size = 2048)
 
-    # Creating a self-signed certificate
-    subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
-    certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).public_key(
-        private_key.public_key()
-    ).serial_number(
-        x509.random_serial_number()
-    ).not_valid_before(
-        datetime.datetime.utcnow()
-    ).not_valid_after(
-        datetime.datetime.utcnow() + datetime.timedelta(days=days_valid)
-    ).add_extension(
-        x509.BasicConstraints(ca=True, path_length=None), critical=True
-    ).sign(
-        private_key, hashes.SHA256()
-    )
-
-    with open(SSL_PRIVATE_KEY_FILE, "wb") as key_file:
-        key_file.write(
-            private_key.private_bytes(
-                encoding=Encoding.PEM,
-                format=PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=NoEncryption(),
-            )
+        # Create a self-signed certificate
+        subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+        certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).public_key(
+            private_key.public_key()
+        ).serial_number(
+            x509.random_serial_number()
+        ).not_valid_before(
+            datetime.datetime.utcnow()
+        ).not_valid_after(
+            datetime.datetime.utcnow() + datetime.timedelta(days=days_valid)
+        ).add_extension(
+            x509.BasicConstraints(ca=True, path_length=None), critical=True
+        ).sign(
+            private_key, hashes.SHA256()
         )
 
-    with open(SSL_CERTIFICATE_FILE, "wb") as cert_file:
-        cert_file.write(
-            certificate.public_bytes(
-                encoding=Encoding.PEM,
+        with open(SSL_PRIVATE_KEY_FILE, "wb") as key_file:
+            key_file.write(
+                private_key.private_bytes(
+                    encoding=Encoding.PEM,
+                    format=PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=NoEncryption(),
+                )
             )
-        )
+
+        with open(SSL_CERTIFICATE_FILE, "wb") as cert_file:
+            cert_file.write(
+                certificate.public_bytes(
+                    encoding=Encoding.PEM,
+                )
+            )
+
+        log_success("Self-signed certificate and key generated successfully.")
+    except Exception as e:
+        log_error(f"Error generating self-signed certificate and key: {e}\n")
+
 
 def log_error(message):
     print(f"Error(s) occurred, please check '{LOG_FILE}' for more details")
@@ -119,6 +126,9 @@ def log_success(message):
 
 def main():
     try:
+        if not FTP_HOSTNAME or not FTP_LOGIN or not FTP_PASSWORD or not FTP_DIRECTORY:
+            raise ValueError("FTP configuration is incomplete.")
+
         log_success(f"Logging into SFTP server at {FTP_HOSTNAME}...")
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -148,6 +158,8 @@ def main():
         log_error(f"SFTP Authentication Error: {e_auth}")
     except paramiko.SSHException as e_ssh:
         log_error(f"SFTP SSH Error: {e_ssh}")
+    except ValueError as e_value:
+        log_error(f"Value Error: {e_value}")
     except Exception as e:
         log_error(f"An unexpected error occurred: {e}\n")
 
@@ -206,6 +218,8 @@ def run_scheduled_task():
             time.sleep(1)
     except KeyboardInterrupt:
         log_success("Script exiting while waiting for scheduled task...")
+    except Exception as e:
+        log_error(f"An unexpected error occurred: {e}\n")
     finally:
         pass
 
