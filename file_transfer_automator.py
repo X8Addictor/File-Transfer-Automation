@@ -43,6 +43,10 @@ LAN_PORT = None
 TIME_OF_DAY_TO_DOWNLOAD = None
 LANServerLaunched = False
 
+# Retry settings for scheduled task
+MAX_RETRIES = 3
+RETRY_INTERVAL_SECONDS = 5
+
 def setup_logging():
     """Configure logging settings to save logs to a file."""
     if not os.path.exists(LOG_FILE):
@@ -200,8 +204,8 @@ def serve_up_on_lan():
             log_error(f"SSL private key file does not exist: {SSL_PRIVATE_KEY_FILE}")
             return None
 
-        ssl_context.load_cert_chain(certfile = SSL_CERTIFICATE_FILE, keyfile = SSL_PRIVATE_KEY_FILE) # Replace the certificate and private key with a real one
-
+        # Add the generated certificate to the browser in the lan network or ignore warnings in the browser
+        ssl_context.load_cert_chain(certfile = SSL_CERTIFICATE_FILE, keyfile = SSL_PRIVATE_KEY_FILE) 
         with socketserver.TCPServer((LAN_IP, LAN_PORT), handler) as httpd:
             httpd.socket = ssl_context.wrap_socket(httpd.socket, server_side = True)
             log_success(f"Server started at {LAN_IP}:{LAN_PORT}")
@@ -209,8 +213,23 @@ def serve_up_on_lan():
     except Exception as e:
         log_error(f"Error serving on LAN: {e}\n")
 
+def scheduled_task_with_retry():
+    retries = 0
+    while retries < MAX_RETRIES:
+        try:
+            main()
+            break  # Successful download, no need to retry
+        except Exception as e:
+            log_error(f"Error in scheduled task: {e}")
+            retries += 1
+            if retries < MAX_RETRIES:
+                log_success(f"Retrying in {RETRY_INTERVAL_SECONDS} seconds...")
+                time.sleep(RETRY_INTERVAL_SECONDS)
+    else:
+        log_error(f"Max retries reached. Scheduled task failed.")
+
 def run_scheduled_task():
-    schedule.every().day.at(TIME_OF_DAY_TO_DOWNLOAD).do(main)
+    schedule.every().day.at(TIME_OF_DAY_TO_DOWNLOAD).do(scheduled_task_with_retry)
     log_success(f"Will download files at {TIME_OF_DAY_TO_DOWNLOAD}")
     try:
         while True:
