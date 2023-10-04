@@ -47,7 +47,7 @@ Before using this automation script, ensure you have the following:
 4. Run the automation script:
 
     ```bash
-    python file_transfer_automation.py
+    python file_transfer_automatior.py
     ```
 
 5. The script will initiate file downloads at the specified time and serve them on the local LAN server.
@@ -59,17 +59,17 @@ This project includes test scripts for checking server responses, login function
 - Server Response Test:
 
     ```bash
-    python -m unittest test_file_transfer_automation.test_server_response
+    python -m unittest test_file_transfer_automatior.test_server_response
     ```
 
 - Server Login Test:
 
     ```bash
-    python -m unittest test_file_transfer_automation.test_server_login
+    python -m unittest test_file_transfer_automatior.test_server_login
     ```
 
 - Configuration File Test:
 
     ```bash
-    python -m unittest test_file_transfer_automation.test_config_file
+    python -m unittest test_file_transfer_automatior.test_config_file
     ```
