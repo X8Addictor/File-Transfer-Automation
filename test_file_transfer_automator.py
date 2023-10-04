@@ -28,7 +28,7 @@ def test_server_login():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(test_ftapp.FTP_HOSTNAME, port = 22, username = test_ftapp.FTP_LOGIN, password = test_ftapp.FTP_PASSWORD)
-    assert ssh.get_transport() is not None, f"SFTP Server has transport - login failed"
+    assert ssh.get_transport() is not None, f"SFTP Server has no transport - login failed"
     assert ssh.get_transport().is_active() is True, f"SFTP Server has no active connection - login failed"
     ssh.close()
 
@@ -57,7 +57,7 @@ def test_config_file():
             missing_values.append('FTP_HOSTNAME')
         if FTP_LOGIN is None or not FTP_LOGIN:
             missing_values.append('FTP_LOGIN')
-        if FTP_PASSWORD is None or not FTP_PASSWORD:    
+        if FTP_PASSWORD is None or not FTP_PASSWORD:
             missing_values.append('FTP_PASSWORD')
         if FTP_DIRECTORY is None or not FTP_DIRECTORY:
             missing_values.append('FTP_DIRECTORY')
