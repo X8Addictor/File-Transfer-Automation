@@ -54,22 +54,10 @@ Before using this automation script, ensure you have the following:
 
 ## Testing
 
-This project includes test scripts for checking server responses, login functionality, and configuration file validity. To run the tests, use the following commands:
+This project includes test scripts for checking server responses, login functionality, and configuration file validity. To run the tests, use the following command:
 
-- Server Response Test:
-
-    ```bash
-    python -m unittest test_file_transfer_automator.test_server_response
-    ```
-
-- Server Login Test:
+- test_file_transfer_automator:
 
     ```bash
-    python -m unittest test_file_transfer_automator.test_server_login
-    ```
-
-- Configuration File Test:
-
-    ```bash
-    python -m unittest test_file_transfer_automator.test_config_file
+    pytest test_file_transfer_automation.py
     ```
