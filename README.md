@@ -59,5 +59,5 @@ This project includes test scripts for checking server responses, login function
 - test_file_transfer_automator:
 
     ```bash
-    pytest test_file_transfer_automation.py
+    pytest test_file_transfer_automator.py
     ```
