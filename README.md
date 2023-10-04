@@ -59,17 +59,17 @@ This project includes test scripts for checking server responses, login function
 - Server Response Test:
 
     ```bash
-    python -m unittest test_file_transfer_automatior.test_server_response
+    python -m unittest test_file_transfer_automator.test_server_response
     ```
 
 - Server Login Test:
 
     ```bash
-    python -m unittest test_file_transfer_automatior.test_server_login
+    python -m unittest test_file_transfer_automator.test_server_login
     ```
 
 - Configuration File Test:
 
     ```bash
-    python -m unittest test_file_transfer_automatior.test_config_file
+    python -m unittest test_file_transfer_automator.test_config_file
     ```
