@@ -19,8 +19,35 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
 
 class FileTransferAutomator:
+    """
+    A class for automating file transfers between an FTP server and a local LAN server.
+
+    Attributes:
+        FILE_DIRECTORY (str): The path to the directory containing this script.
+        DOWNLOAD_DIRECTORY (str): The directory where downloaded files are stored.
+        LOG_DIRECTORY (str): The directory where log files are stored.
+        SERVER_DIRECTORY (str): The directory for the local LAN server files.
+        SSL_CERTIFICATE_DIRECTORY (str): The directory for SSL certificates.
+        SSL_CERTIFICATE_FILE (str): The path to the SSL certificate file.
+        SSL_PRIVATE_KEY_FILE (str): The path to the SSL private key file.
+        LOG_FILE (str): The path to the log file.
+        CONFIG_FILE (str): The path to the configuration file.
+        FTP_HOSTNAME (str): The hostname of the FTP server.
+        FTP_LOGIN (str): The FTP server login username.
+        FTP_PASSWORD (str): The FTP server login password.
+        FTP_DIRECTORY (str): The FTP server directory for file transfers.
+        LAN_IP (str): The local area network server's IP address.
+        LAN_PORT (int): The port on which the LAN server runs.
+        TIME_OF_DAY_TO_DOWNLOAD (str): The time of day to initiate file downloads.
+        LANServerLaunched (bool): Indicates whether the LAN server has been launched.
+        MAX_RETRIES (int): The maximum number of download retries in case of failure.
+        RETRY_INTERVAL_SECONDS (int): The interval between download retries.
+    """
     def __init__(self):
-        # Define constants for file paths and directories.
+        """
+        Initialize the FileTransferAutomator and perform setup tasks.
+        """
+        # Attributes for file paths and directories.
         self.FILE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
         self.DOWNLOAD_DIRECTORY = os.path.join(self.FILE_DIRECTORY, 'File Downloads')
         self.LOG_DIRECTORY = os.path.join(self.FILE_DIRECTORY, 'Logs')
@@ -35,33 +62,40 @@ class FileTransferAutomator:
         os.makedirs(self.SERVER_DIRECTORY, exist_ok = True)
         os.makedirs(self.SSL_CERTIFICATE_DIRECTORY, exist_ok = True)
 
-        # Define constants for ftp server
+        # Attributes for ftp server
         self.FTP_HOSTNAME = None
         self.FTP_LOGIN = None
         self.FTP_PASSWORD = None
         self.FTP_DIRECTORY = None
 
-        # Define constants for local area network server
+        # Attributes for local area network server
         self.LAN_IP = None
         self.LAN_PORT = None
 
+        # Attributes for schedule and LAN server
         self.TIME_OF_DAY_TO_DOWNLOAD = None
         self.LANServerLaunched = False
 
-        # Retry settings for scheduled task
+        # Attributes for settings for scheduled task
         self.MAX_RETRIES = 3
         self.RETRY_INTERVAL_SECONDS = 5
 
+        # Calling methods to start the automation
         self.setup_logging()
         self.load_configuration()
         self.generate_self_signed_certificate_and_key()
         self.get_local_ip_address()
 
     def run(self):
+        """
+        Run the file transfer automation.
+        """
         self.run_scheduled_task()
 
     def setup_logging(self):
-        """Configure logging settings to save logs to a file."""
+        """
+        Configure logging settings to save logs to a file.
+        """
         if not os.path.exists(self.LOG_FILE):
             with open(self.LOG_FILE, 'w') as log_file:
                 log_file.write('')
@@ -69,8 +103,9 @@ class FileTransferAutomator:
         logging.basicConfig(filename=self.LOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
 
     def load_configuration(self):
-        #global FTP_HOSTNAME, FTP_LOGIN, FTP_PASSWORD, FTP_DIRECTORY, LAN_PORT, TIME_OF_DAY_TO_DOWNLOAD
-
+        """
+        Load configuration settings from the configuration file.
+        """
         try:
             with open(self.CONFIG_FILE, "r") as config_file:
                 config = json.load(config_file)
@@ -90,6 +125,12 @@ class FileTransferAutomator:
             self.FTP_HOSTNAME = self.FTP_LOGIN = self.FTP_PASSWORD = self.FTP_DIRECTORY = self.LAN_PORT = self.TIME_OF_DAY_TO_DOWNLOAD = None
 
     def generate_self_signed_certificate_and_key(self, days_valid = 365):
+        """
+        Generate a self-signed SSL certificate and private key.
+        
+        Args:
+            days_valid (int): Number of days the certificate is valid.
+        """
         try:
             common_name = socket.gethostname()
 
@@ -132,16 +173,30 @@ class FileTransferAutomator:
         except Exception as e:
             self.log_error(f"Error generating self-signed certificate and key: {e}\n")
 
-
     def log_error(self, message):
+        """
+        Log an error message.
+
+        Args:
+            message (str): The error message to log.
+        """
         print(f"Error(s) occurred, please check '{self.LOG_FILE}' for more details")
         logging.error(message)
 
     def log_success(self, message):
+        """
+        Log a success message.
+
+        Args:
+            message (str): The success message to log.
+        """
         print(message)
         logging.info(message)
 
     def main(self):
+        """
+        Perform the main file transfer automation tasks.
+        """
         try:
             if not self.FTP_HOSTNAME or not self.FTP_LOGIN or not self.FTP_PASSWORD or not self.FTP_DIRECTORY:
                 raise ValueError("FTP configuration is incomplete.")
@@ -184,6 +239,9 @@ class FileTransferAutomator:
             self.log_error(f"An unexpected error occurred: {e}\n")
 
     def copy_files_to_server_directory(self):
+        """
+        Copy downloaded files to the local server directory.
+        """
         self.log_success(f"Copying files to local server...")
         try:
             files = os.listdir(self.DOWNLOAD_DIRECTORY)
@@ -194,7 +252,9 @@ class FileTransferAutomator:
             self.log_error(f"An unexpected error occurred: {e}\n")
 
     def launch_lan_server(self):
-        #global LANServerLaunched
+        """
+        Launch the local LAN server.
+        """
         try:
             if not self.LANServerLaunched:
                 thread.start_new_thread(self.serve_up_on_lan, ())
@@ -206,7 +266,9 @@ class FileTransferAutomator:
             self.log_error(f"Error launching LAN Server: {e}\n")
 
     def get_local_ip_address(self):
-        #global LAN_IP
+        """
+        Get the local IP address.
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(0)
         try:
@@ -218,6 +280,9 @@ class FileTransferAutomator:
             s.close()
 
     def serve_up_on_lan(self):
+        """
+        Serve content on the LAN via HTTPS.
+        """
         try:
             handler = LANHttpRequestHandler
             ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -240,6 +305,9 @@ class FileTransferAutomator:
             self.log_error(f"Error serving on LAN: {e}\n")
 
     def scheduled_task_with_retry(self):
+        """
+        Run the scheduled task with retry mechanism.
+        """
         retries = 0
         while retries < self.MAX_RETRIES:
             try:
@@ -255,6 +323,9 @@ class FileTransferAutomator:
             self.log_error(f"Max retries reached. Scheduled task failed.")
 
     def run_scheduled_task(self):
+        """
+        Run the scheduled task to initiate file downloads.
+        """
         schedule.every().day.at(self.TIME_OF_DAY_TO_DOWNLOAD).do(self.scheduled_task_with_retry)
         self.log_success(f"Will download files at {self.TIME_OF_DAY_TO_DOWNLOAD}")
         try:
