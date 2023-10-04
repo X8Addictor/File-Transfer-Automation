@@ -4,5 +4,5 @@
     "FTP_PASSWORD": "password",
     "FTP_DIRECTORY": "pub/example/",
     "LAN_PORT": 8000,
-    "TIME_OF_DAY_TO_DOWNLOAD": "16:15"
+    "TIME_OF_DAY_TO_DOWNLOAD": "19:39"
 }
