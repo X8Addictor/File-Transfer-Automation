@@ -73,7 +73,7 @@ class FileTransferAutomator:
         self.LAN_PORT = None
 
         # Attributes for schedule and LAN server
-        self.TIME_OF_DAY_TO_DOWNLOAD = None
+        self.TIME_OF_DAY_TO_DOWNLOAD = None # Change the time in the config file in 24hr format to 1 minute after current local time for testing
         self.LANServerLaunched = False
 
         # Attributes for settings for scheduled task
