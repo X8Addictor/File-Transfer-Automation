@@ -47,7 +47,7 @@ Before using this automation script, ensure you have the following:
 4. Run the automation script:
 
     ```bash
-    python file_transfer_automatior.py
+    python file_transfer_automator.py
     ```
 
 5. The script will initiate file downloads at the specified time and serve them on the local LAN server.
